@@ -2,6 +2,17 @@ import express from 'express'
 import Post from '../models/post'
 const posts = express.Router()
 
+//total amount of posts
+let totalPosts = 0;
+
+function updateTotalPosts() {
+  Post
+  .count()
+  .then(res => totalPosts = res)
+}
+
+updateTotalPosts();
+
 
 // get all posts
 posts.get('/', (req, res, next) => {
@@ -22,7 +33,9 @@ posts.get('/', (req, res, next) => {
     .then(post => {
       res.json({
         data: post,
-        total: totalResults
+        total: totalResults,
+        page: page,
+        perPage: perPage
       })
     })
     .catch(next)
@@ -43,6 +56,7 @@ posts.post('/', (req, res, next) => {
   .create(req.body)
   .then(post => {
     console.log(`New post added: ${post._id}\nTitle: ${post.title}\nBody: ${post.body}`)
+    updateTotalPosts()
     res.json(post)
   })
   .catch(next)
