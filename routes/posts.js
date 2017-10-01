@@ -5,15 +5,28 @@ const posts = express.Router()
 
 // get all posts
 posts.get('/', (req, res, next) => {
+  const page =  parseInt(req.query.page) || 1
+  const perPage = parseInt(req.query.perPage) || 10
+
+  let query = {}
+
+  if(req.query.title) query['title'] = req.query.title
+
   Post
-  .find()
-  .then(post => {
-    res.json({
-      data: post,
-      total: post.length
+  .count()
+  .then(totalResults => {
+    Post
+    .find(query)
+    .skip((page * perPage) - perPage)
+    .limit(perPage)
+    .then(post => {
+      res.json({
+        data: post,
+        total: totalResults
+      })
     })
+    .catch(next)
   })
-  .catch(next)
 })
 
 // get a single post by id
