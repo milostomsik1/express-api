@@ -32,6 +32,7 @@ posts.get('/', (req, res, next) => {
       data: post,
       total: totalPosts,
       page: page,
+      totalPages: Math.ceil(totalPosts/perPage),
       perPage: perPage
     })
   })

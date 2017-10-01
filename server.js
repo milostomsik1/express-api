@@ -23,6 +23,13 @@ app.use(bodyParser.json({limit: config.limit}))
 // attach routes
 app.use('/api', routes)
 
+// 404
+app.use((req, res, next) => {
+  res.status(404)
+     .send({ error: 'Not endpoint found' })
+  next();
+})
+
 // error middleware
 app.use((err, req, res, next) => {
   res.status(422).send({
