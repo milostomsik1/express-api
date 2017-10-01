@@ -26,7 +26,7 @@ app.use('/api', routes)
 // 404
 app.use((req, res, next) => {
   res.status(404)
-     .send({ error: 'Not endpoint found' })
+     .send({ error: 'Endpoint not found' })
   next();
 })
 
