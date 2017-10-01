@@ -24,22 +24,18 @@ posts.get('/', (req, res, next) => {
   if(req.query.title) query['title'] = req.query.title
 
   Post
-  .count()
-  .then(totalResults => {
-    Post
-    .find(query)
-    .skip((page * perPage) - perPage)
-    .limit(perPage)
-    .then(post => {
-      res.json({
-        data: post,
-        total: totalResults,
-        page: page,
-        perPage: perPage
-      })
+  .find(query)
+  .skip((page * perPage) - perPage)
+  .limit(perPage)
+  .then(post => {
+    res.json({
+      data: post,
+      total: totalPosts,
+      page: page,
+      perPage: perPage
     })
-    .catch(next)
   })
+  .catch(next)
 })
 
 // get a single post by id
