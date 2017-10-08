@@ -1,4 +1,3 @@
-import express from 'express'
 import Post from '../models/post'
 
 export default { 
@@ -7,7 +6,9 @@ export default {
     Post
     .create(req.body)
     .then(posts => {
-      res.json(posts)
+      res
+      .status(201)
+      .json(posts)
     })
     .catch(next)
   },
@@ -25,7 +26,13 @@ export default {
     Post
     .findById(req.params.id)
     .then(post => {
-      res.json(post)
+      if(post) {
+        res.json(post)
+      } else {
+        res
+        .status(404)
+        .send({error: `Post ${req.params.id} doesn't exist.`})
+      }
     })
     .catch(next)
   },
@@ -47,7 +54,13 @@ export default {
     Post
     .findByIdAndRemove(req.params.id)
     .then(post => {
-      res.json(post)
+      if(post) {
+        res.json(post)
+      } else {
+        res
+        .status(404)
+        .send({error: `Post ${req.params.id} doesn't exist.`})
+      }
     })
     .catch(next)
   }
