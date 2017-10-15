@@ -6,7 +6,7 @@ import bodyParser from 'body-parser'
 import routes from './routes/index'
 
 // setup express server
-const server = express()
+const SERVER = express()
 
 // db connect
 mongoose.connect(config.databaseUrl)
@@ -14,16 +14,16 @@ mongoose.Promise = global.Promise
 
 
 // gzip middleware
-server.use(compression())
+SERVER.use(compression())
 
 // bodyparser middleware
-server.use(bodyParser.json({limit: config.limit}))
+SERVER.use(bodyParser.json({limit: config.limit}))
 
 // attach routes
-server.use('/api', routes)
+SERVER.use('/api', routes)
 
 // error middleware
-server.use((err, req, res, next) => {
+SERVER.use((err, req, res, next) => {
   res
   .status(422)
   .send({error: err.message})
@@ -32,7 +32,7 @@ server.use((err, req, res, next) => {
 })
 
 // 404
-server.use((req, res, next) => {
+SERVER.use((req, res, next) => {
   res
   .status(404)
   .send({error: 'Endpoint not found'})
@@ -42,6 +42,6 @@ server.use((req, res, next) => {
 
 
 // listen for requests
-server.listen(process.env.port || config.port, () => {
+SERVER.listen(process.env.port || config.port, () => {
   console.log(`Listening for requests on localhost: ${config.port}`)
 });

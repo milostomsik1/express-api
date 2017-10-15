@@ -1,14 +1,14 @@
 import express from 'express'
-import Post from '../controllers/posts'
-const posts = express()
+import controller from '../controllers/posts'
+const ROUTER = express()
 
-posts.route('/')
-     .post(Post.createPost)
-     .get(Post.getPosts)
+ROUTER.route('/')
+     .post(controller.createPost)
+     .get(controller.getPosts)
 
-posts.route('/:id')
-     .get(Post.getPost)
-     .put(Post.updatePost)
-     .delete(Post.deletePost)
+ROUTER.route('/:id')
+     .get(controller.getPost)
+     .put(controller.updatePost)
+     .delete(controller.deletePost)
 
-export default posts
+export default ROUTER
