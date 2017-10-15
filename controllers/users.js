@@ -4,9 +4,9 @@ export default {
 
   // POST a User
   createUser (request, response, next) {
-    const BODY = request.body
-    BODY.created = Date.now()
-    BODY.edited = Date.now()
+    const body = request.body
+    body.created = Date.now()
+    body.edited = Date.now()
 
     //Checks if already exists
     User
@@ -19,7 +19,7 @@ export default {
       } else {
         //Creates user
         User
-        .create(BODY)
+        .create(body)
         .then(dbUser => {
           response
           .status(201)

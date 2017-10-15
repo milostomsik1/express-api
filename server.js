@@ -1,29 +1,32 @@
 import express from 'express'
 import compression from 'compression'
+import morgan from 'morgan'
 import mongoose from 'mongoose'
 import config from './config/db' 
 import bodyParser from 'body-parser'
 import routes from './routes/index'
 
 // setup express server
-const SERVER = express()
+const server = express()
 
 // db connect
 mongoose.connect(config.databaseUrl)
 mongoose.Promise = global.Promise
 
+// logger
+server.use(morgan('dev'))
 
 // gzip middleware
-SERVER.use(compression())
+server.use(compression())
 
 // bodyparser middleware
-SERVER.use(bodyParser.json({limit: config.limit}))
+server.use(bodyParser.json({limit: config.limit}))
 
 // attach routes
-SERVER.use('/api', routes)
+server.use('/api', routes)
 
 // error middleware
-SERVER.use((err, req, res, next) => {
+server.use((err, req, res, next) => {
   res
   .status(422)
   .send({error: err.message})
@@ -32,7 +35,7 @@ SERVER.use((err, req, res, next) => {
 })
 
 // 404
-SERVER.use((req, res, next) => {
+server.use((req, res, next) => {
   res
   .status(404)
   .send({error: 'Endpoint not found'})
@@ -42,6 +45,6 @@ SERVER.use((req, res, next) => {
 
 
 // listen for requests
-SERVER.listen(process.env.port || config.port, () => {
+server.listen(process.env.port || config.port, () => {
   console.log(`Listening for requests on localhost: ${config.port}`)
 });

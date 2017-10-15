@@ -4,12 +4,12 @@ export default {
 
   // POST a post
   createPost (request, response, next) {
-    let _post = request.body
-    _post.created = Date.now()
-    _post.edited = Date.now()
+    let body = request.body
+    body.created = Date.now()
+    body.edited = Date.now()
 
     Post
-    .create(_post)
+    .create(body)
     .then(dbPost => {
       response
       .status(201)
@@ -51,11 +51,11 @@ export default {
   // PUT a post
   updatePost (req, res, next) {
     const id = req.params.id
-    let _post = req.body
-    _post.updated = Date.now()
+    let body = req.body
+    body.updated = Date.now()
 
     Post
-    .findByIdAndUpdate(id, _post)
+    .findByIdAndUpdate(id, body)
     .then(post => {
       Post
       .findById(id)

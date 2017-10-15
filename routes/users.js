@@ -1,15 +1,15 @@
 import express from 'express'
 import controller from '../controllers/users'
-const ROUTER = express()
+const router = express()
 
-ROUTER.route('/')
+router.route('/')
      .post(controller.createUser)
      .get(controller.getUsers)
 
-ROUTER.route('/:id')
+router.route('/:id')
      .get(controller.getUser)
      .put(controller.updateUser)
      .delete(controller.deleteUser)
 
-export default ROUTER
+export default router
 

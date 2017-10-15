@@ -1,9 +1,9 @@
 import express from 'express'
 import posts from './posts'
 import users from './users'
-const ROUTES = express()
+const routers = express()
 
-ROUTES.use('/v1/posts', posts)
-ROUTES.use('/v1/users', users)
+routers.use('/v1/posts', posts)
+routers.use('/v1/users', users)
 
-export default ROUTES
+export default routers
