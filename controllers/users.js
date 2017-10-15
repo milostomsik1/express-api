@@ -4,10 +4,11 @@ export default {
 
   // POST a User
   createUser (request, response, next) {
-    let _User = request.body
-    _User.created = Date.now()
-    _User.edited = Date.now()
+    const BODY = request.body
+    BODY.created = Date.now()
+    BODY.edited = Date.now()
 
+    //Checks if already exists
     User
     .findOne({email: request.body.email})
     .then(user => {
@@ -15,10 +16,10 @@ export default {
         response
         .status(418)
         .json({error: "Email is taken."})
-        
       } else {
+        //Creates user
         User
-        .create(_User)
+        .create(BODY)
         .then(dbUser => {
           response
           .status(201)
@@ -44,8 +45,8 @@ export default {
   getUser (req, res, next) {
     User
     .findById(req.params.id)
-    .then(User => {
-      if(User) {
+    .then(user => {
+      if(user) {
         res.json(User)
       } else {
         res
@@ -59,12 +60,12 @@ export default {
   // PUT a User
   updateUser (req, res, next) {
     const id = req.params.id
-    let _User = req.body
-    _User.updated = Date.now()
+    let body = req.body
+    body.edited = Date.now()
 
     User
-    .findByIdAndUpdate(id, _User)
-    .then(User => {
+    .findByIdAndUpdate(id, body)
+    .then(user => {
       User
       .findById(id)
       .then(updatedUser => {
@@ -78,7 +79,7 @@ export default {
   deleteUser (req, res, next) {
     User
     .findByIdAndRemove(req.params.id)
-    .then(User => {
+    .then(user => {
       if(User) {
         res.json(User)
       } else {

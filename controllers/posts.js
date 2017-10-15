@@ -25,6 +25,7 @@ export default {
 
     Post
     .find(query)
+    .populate('author', 'name')
     .then(dbPosts => {
       response.json(dbPosts)
     })
