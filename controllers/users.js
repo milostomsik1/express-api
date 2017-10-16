@@ -4,25 +4,28 @@ import bcrypt from 'bcryptjs'
 export default { 
 
   // POST a User
-  createUser (request, response, next) {
-    const body = request.body
-    body.created = Date.now()
-    body.edited = Date.now()
+  createUser (req, res) {
+    req.body.created = Date.now()
+    req.body.edited = Date.now()
 
-    console.log(request.body.password)
+    // --- ADD REQUEST VALIDATION
 
-    let password = request.body.password;
+    User.findOne({email: req.body.email}, (err, user) => {
+      if (user) {
+        res.json({error: 'Email already in use.'})
+        return;
+      }
 
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(password, salt, (err, hash) => {
+      bcrypt.genSalt(5, (err, salt) => {
+        bcrypt.hash(req.body.password, salt, (err, hash) => {
+          req.body.password = hash;
 
-        bcrypt.compare(password, hash)
-              .then(res => {
-                console.log(res)
-              })
+          console.log(req.body)
 
-        response.json(hash)
+          res.json('No users under that email')
+        })
       })
+
     })
 
     //Checks if already exists
@@ -46,7 +49,6 @@ export default {
     //   }
     // })
     // .catch(next)
-
   },
 
   // GET all Users
