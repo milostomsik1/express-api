@@ -5,7 +5,6 @@ import mongoose from 'mongoose'
 import config from './config/db' 
 import bodyParser from 'body-parser'
 import routes from './routes/index'
-import jwt from 'jsonwebtoken'
 
 // setup express server
 const server = express()
@@ -44,7 +43,6 @@ server.use((req, res, next) => {
 
   next()
 })
-
 
 // listen for requests
 server.listen(process.env.port || config.port, () => {

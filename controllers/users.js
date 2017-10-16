@@ -1,4 +1,5 @@
 import User from '../models/User'
+import bcrypt from 'bcryptjs'
 
 export default { 
 
@@ -8,27 +9,44 @@ export default {
     body.created = Date.now()
     body.edited = Date.now()
 
-    //Checks if already exists
-    User
-    .findOne({email: request.body.email})
-    .then(user => {
-      if(user) {
-        response
-        .status(418)
-        .json({error: "Email is taken."})
-      } else {
-        //Creates user
-        User
-        .create(body)
-        .then(dbUser => {
-          response
-          .status(201)
-          .json(dbUser)
-        })
-        .catch(next)
-      }
+    console.log(request.body.password)
+
+    let password = request.body.password;
+
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(password, salt, (err, hash) => {
+
+        bcrypt.compare(password, hash)
+              .then(res => {
+                console.log(res)
+              })
+
+        response.json(hash)
+      })
     })
-    .catch(next)
+
+    //Checks if already exists
+    // User
+    // .findOne({email: request.body.email})
+    // .then(user => {
+    //   if(user) {
+    //     response
+    //     .status(418)
+    //     .json({error: "Email is taken."})
+    //   } else {
+    //     //Creates user
+    //     User
+    //     .create(body)
+    //     .then(dbUser => {
+    //       response
+    //       .status(201)
+    //       .json(dbUser)
+    //     })
+    //     .catch(next)
+    //   }
+    // })
+    // .catch(next)
+
   },
 
   // GET all Users
