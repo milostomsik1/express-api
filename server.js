@@ -1,13 +1,15 @@
 import express from 'express'
-import compression from 'compression'
 import morgan from 'morgan'
+import compression from 'compression'
 import mongoose from 'mongoose'
 import config from './config/db' 
 import bodyParser from 'body-parser'
 import routes from './routes/index'
+import jwt from 'jsonwebtoken'
 
 // setup express server
 const server = express()
+process.env.SECRET_KEY = config.secretKey
 
 // db connect
 mongoose.connect(config.databaseUrl)
