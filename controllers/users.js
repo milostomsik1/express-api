@@ -4,51 +4,29 @@ import bcrypt from 'bcryptjs'
 export default { 
 
   // POST a User
-  createUser (req, res) {
-    req.body.created = Date.now()
-    req.body.edited = Date.now()
-
+  createUser (req, res, next) {
     // --- ADD REQUEST VALIDATION
 
-    User.findOne({email: req.body.email}, (err, user) => {
+    User.findOne({email: req.body.email})
+    .then(user => {
       if (user) {
         res.json({error: 'Email already in use.'})
         return;
       }
-
       bcrypt.genSalt(5, (err, salt) => {
         bcrypt.hash(req.body.password, salt, (err, hash) => {
+          req.body.created = Date.now()
+          req.body.edited = Date.now()
           req.body.password = hash;
-
-          console.log(req.body)
-
-          res.json('No users under that email')
+          
+          User.create(req.body)
+          .then(dbUser => {
+            res.status(201).json(dbUser)
+          })
         })
       })
-
     })
-
-    //Checks if already exists
-    // User
-    // .findOne({email: request.body.email})
-    // .then(user => {
-    //   if(user) {
-    //     response
-    //     .status(418)
-    //     .json({error: "Email is taken."})
-    //   } else {
-    //     //Creates user
-    //     User
-    //     .create(body)
-    //     .then(dbUser => {
-    //       response
-    //       .status(201)
-    //       .json(dbUser)
-    //     })
-    //     .catch(next)
-    //   }
-    // })
-    // .catch(next)
+    .catch(next)
   },
 
   // GET all Users
