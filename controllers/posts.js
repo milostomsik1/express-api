@@ -11,27 +11,36 @@ const OPTIONS = {
   }
 }
 
-const postSchema = Post.schema.obj;
-
 export default {
   //-------------------------
   // POST
   //-------------------------
   createPost (req, res, next) {
-    console.log(postSchema)
     // --- title
     if (!req.body.title) {
       res.status(422).json({errors: {title: "Title is required."}})
       return;
     } else {
       req.checkBody('title', 'Can\'t be empty.').notEmpty()
-      req.checkBody('title', `Must be between ${OPTIONS.title.min} and ${OPTIONS.title.max} characters.`).isLength({min: OPTIONS.title.min, max: OPTIONS.title.max})
+      req.checkBody('title', `Must be between ${OPTIONS.title.min} and ${OPTIONS.title.max} characters.`)
+        .isLength({min: OPTIONS.title.min, max: OPTIONS.title.max})
     }
     // --- body
+    if (!req.body.body) {
+      res.status(422).json({errors: {body: "Body is required."}})
+      return;
+    } else {
     req.checkBody('body', 'Can\'t be empty.').notEmpty()
-    req.checkBody('body', `Must be between ${OPTIONS.body.min} and ${OPTIONS.body.max} characters.`).isLength({min: OPTIONS.body.min, max: OPTIONS.body.max})
+    req.checkBody('body', `Must be between ${OPTIONS.body.min} and ${OPTIONS.body.max} characters.`)
+      .isLength({min: OPTIONS.body.min, max: OPTIONS.body.max})
+    }
     // --- author
+    if (!req.body.author) {
+      res.status(422).json({errors: {author: "Author is required."}})
+      return;
+    } else {
     req.checkBody('author', 'Must have an author.').notEmpty()
+    }
 
     let errors = req.validationErrors(true)
 
@@ -94,11 +103,10 @@ export default {
 
     Post
     .findByIdAndUpdate(id, body)
-    .then(post => {
-      Post
-      .findById(id)
-      .then(updatedPost => {
-        res.json(updatedPost)
+    .then(doc => {
+      Post.findById(id)
+      .then(updatedDoc => {
+        res.status(200).json(updatedDoc)
       })
     })
     .catch(next)
@@ -108,15 +116,14 @@ export default {
   // DELETE
   //-------------------------
   deletePost (req, res, next) {
-    Post
-    .findByIdAndRemove(req.params.id)
+    Post.findByIdAndRemove(req.params.id)
     .then(post => {
       if(post) {
         res.json(post)
       } else {
-        res
-        .status(404)
-        .send({error: `Post ${req.params.id} doesn't exist.`})
+        res.status(404).send({
+          errors: {post: `${req.params.id} doesn't exist.`}
+        })
       }
     })
     .catch(next)
