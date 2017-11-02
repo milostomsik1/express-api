@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now()
   }
-}, 
+},
 { versionKey: false })
 
 export default mongoose.model('User', UserSchema)

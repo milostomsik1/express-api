@@ -1,54 +1,92 @@
 import Post from '../models/Post'
 
-export default { 
+const OPTIONS = {
+  title: {
+    min: 3,
+    max: 100
+  },
+  body: {
+    min: 10,
+    max: 1000
+  }
+}
 
-  // POST a post
-  createPost (request, response, next) {
-    let body = request.body
-    body.created = Date.now()
-    body.edited = Date.now()
+const postSchema = Post.schema.obj;
 
-    Post
-    .create(body)
-    .then(dbPost => {
-      response
-      .status(201)
-      .json(dbPost)
-    })
-    .catch(next)
+export default {
+  //-------------------------
+  // POST
+  //-------------------------
+  createPost (req, res, next) {
+    console.log(postSchema)
+    // --- title
+    if (!req.body.title) {
+      res.status(422).json({errors: {title: "Title is required."}})
+      return;
+    } else {
+      req.checkBody('title', 'Can\'t be empty.').notEmpty()
+      req.checkBody('title', `Must be between ${OPTIONS.title.min} and ${OPTIONS.title.max} characters.`).isLength({min: OPTIONS.title.min, max: OPTIONS.title.max})
+    }
+    // --- body
+    req.checkBody('body', 'Can\'t be empty.').notEmpty()
+    req.checkBody('body', `Must be between ${OPTIONS.body.min} and ${OPTIONS.body.max} characters.`).isLength({min: OPTIONS.body.min, max: OPTIONS.body.max})
+    // --- author
+    req.checkBody('author', 'Must have an author.').notEmpty()
+
+    let errors = req.validationErrors(true)
+
+    if (errors) {
+      res.status(422).json({errors})
+      return;
+    } else {
+      req.body.created = Date.now()
+      req.body.edited = Date.now()
+
+      Post.create(req.body)
+      .then(doc => {
+        res.status(201).json(doc)
+      })
+      .catch(next)
+    }
   },
 
-  // GET all posts
-  getPosts (request, response, next) {
+
+  //-------------------------
+  // GET ALL
+  //-------------------------
+  getPosts (req, res, next) {
     let query = {}
-    if(request.query.title) query.title = request.query.title
+    if(req.query.title) query.title = req.query.title
 
-    Post
-    .find(query)
-    .populate('author', 'name')
-    .then(dbPosts => {
-      response.json(dbPosts)
+    Post.find(query).populate('author', 'name')
+    .then(doc => {
+      res.json(doc)
     })
     .catch(next)
   },
-  
-  // GET a post
+
+
+  //-------------------------
+  // GET ONE
+  //-------------------------
   getPost (req, res, next) {
-    Post
-    .findById(req.params.id)
-    .then(post => {
-      if(post) {
-        res.json(post)
+    Post.findById(req.params.id)
+    .then(doc => {
+      if(doc) {
+        res.json(doc)
       } else {
-        res
-        .status(404)
-        .send({error: `Post ${req.params.id} doesn't exist.`})
+        res.status(404).send({
+          errors: {post: `${req.params.id} doesn't exist.`}
+        })
       }
     })
     .catch(next)
   },
 
-  // PUT a post
+
+  //-------------------------
+  // UPDATE
+  //-------------------------
   updatePost (req, res, next) {
     const id = req.params.id
     let body = req.body
@@ -66,7 +104,9 @@ export default {
     .catch(next)
   },
 
-  // DELETE a post
+  //-------------------------
+  // DELETE
+  //-------------------------
   deletePost (req, res, next) {
     Post
     .findByIdAndRemove(req.params.id)
@@ -81,5 +121,6 @@ export default {
     })
     .catch(next)
   }
+
 
 }

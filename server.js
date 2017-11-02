@@ -2,8 +2,9 @@ import express from 'express'
 import morgan from 'morgan'
 import compression from 'compression'
 import mongoose from 'mongoose'
-import config from './config/db' 
+import config from './config/db'
 import bodyParser from 'body-parser'
+import validator from 'express-validator'
 import routes from './routes/index'
 
 // setup express server
@@ -23,26 +24,33 @@ server.use(compression())
 // bodyparser middleware
 server.use(bodyParser.json({limit: config.limit}))
 
+// validator
+server.use(validator({
+  errorFormatter(param, msg, value) {
+    // return {[param]: msg}
+    return msg
+  }
+}))
+
 // attach routes
 server.use('/api', routes)
 
 // error middleware
-server.use((err, req, res, next) => {
-  res
-  .status(422)
-  .send({error: err.message})
+// server.use((err, req, res, next) => {
+//   res
+//   .status(422)
+//   .send({error: err.message})
+//   next()
+// })
 
-  next()
-})
+// // 404
+// server.use((req, res, next) => {
+//   res
+//   .status(404)
+//   .send({error: 'Endpoint not found'})
 
-// 404
-server.use((req, res, next) => {
-  res
-  .status(404)
-  .send({error: 'Endpoint not found'})
-
-  next()
-})
+//   next()
+// })
 
 // listen for requests
 server.listen(process.env.port || config.port, () => {

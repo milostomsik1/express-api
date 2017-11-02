@@ -1,7 +1,7 @@
 import User from '../models/User'
 import bcrypt from 'bcryptjs'
 
-export default { 
+export default {
 
   // POST a User
   createUser (req, res, next) {
@@ -13,12 +13,14 @@ export default {
         res.json({error: 'Email already in use.'})
         return;
       }
-      bcrypt.genSalt(5, (err, salt) => {
-        bcrypt.hash(req.body.password, salt, (err, hash) => {
+      bcrypt.genSalt(10)
+      .then(salt => {
+        bcrypt.hash(req.body.password, salt)
+        .then(hash => {
           req.body.created = Date.now()
           req.body.edited = Date.now()
           req.body.password = hash;
-          
+
           User.create(req.body)
           .then(dbUser => {
             res.status(201).json(dbUser)
