@@ -4,8 +4,7 @@ import compression from 'compression'
 import mongoose from 'mongoose'
 import config from './config/db'
 import bodyParser from 'body-parser'
-import validator from 'express-validator'
-import routes from './routes/index'
+import router from './routes/index.routes'
 
 // setup express server
 const server = express()
@@ -24,33 +23,30 @@ server.use(compression())
 // bodyparser middleware
 server.use(bodyParser.json({limit: config.limit}))
 
-// validator
-server.use(validator({
-  errorFormatter(param, msg, value) {
-    // return {[param]: msg}
-    return msg
-  }
-}))
-
 // attach routes
-server.use('/api', routes)
+server.use('/api', router)
 
-// error middleware
-// server.use((err, req, res, next) => {
-//   res
-//   .status(422)
-//   .send({error: err.message})
-//   next()
-// })
+// 422 middleware
+server.use(function (err, req, res, next) {
+  if(err) {
+    let errors = {};
+    Object.keys(err.errors).forEach(key => {
+      errors[key] = (err.errors[key]['message'])
+    });
+    res.status(422).json({errors})
+  }
+})
 
-// // 404
-// server.use((req, res, next) => {
-//   res
-//   .status(404)
-//   .send({error: 'Endpoint not found'})
+// 500 middleware
+server.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).json({errors: "Internal server error"})
+})
 
-//   next()
-// })
+// 404 middleware
+server.use(function (req, res, next) {
+  res.status(404).json({errors: "Endpoint not found"})
+})
 
 // listen for requests
 server.listen(process.env.port || config.port, () => {

@@ -1,32 +1,25 @@
-import User from '../models/User'
-import bcrypt from 'bcryptjs'
+import User from '../models/user.model'
 
 export default {
 
-  // POST a User
+  //-------------------------
+  // POST
+  //-------------------------
   createUser (req, res, next) {
-    // --- ADD REQUEST VALIDATION
 
-    User.findOne({email: req.body.email})
-    .then(user => {
-      if (user) {
-        res.json({error: 'Email already in use.'})
-        return;
-      }
-      bcrypt.genSalt(10)
-      .then(salt => {
-        bcrypt.hash(req.body.password, salt)
-        .then(hash => {
-          req.body.created = Date.now()
-          req.body.edited = Date.now()
-          req.body.password = hash;
+    // bcrypt.genSalt(10)
+    // .then(salt => {
+    //   bcrypt.hash(req.body.password, salt)
+    //   .then(hash => {
+    //     req.body.created = Date.now()
+    //     req.body.edited = Date.now()
+    //     req.body.password = hash;
+    //   })
+    // })
 
-          User.create(req.body)
-          .then(dbUser => {
-            res.status(201).json(dbUser)
-          })
-        })
-      })
+    User.create(req.body)
+    .then(doc => {
+      res.status(201).json(doc)
     })
     .catch(next)
   },
@@ -40,7 +33,8 @@ export default {
     })
     .catch(next)
   },
-  
+
+
   // GET a User
   getUser (req, res, next) {
     User

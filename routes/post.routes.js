@@ -1,5 +1,5 @@
 import express from 'express'
-import controller from '../controllers/posts'
+import controller from '../controllers/post.controller'
 const router = express()
 
 router.route('/')
