@@ -6,25 +6,18 @@ export default {
   // POST
   //-------------------------
   createUser (req, res, next) {
-
-    // bcrypt.genSalt(10)
-    // .then(salt => {
-    //   bcrypt.hash(req.body.password, salt)
-    //   .then(hash => {
-    //     req.body.created = Date.now()
-    //     req.body.edited = Date.now()
-    //     req.body.password = hash;
-    //   })
-    // })
-
     User.create(req.body)
     .then(doc => {
+      doc = doc.toObject()
+      delete doc.password
       res.status(201).json(doc)
     })
     .catch(next)
   },
 
-  // GET all Users
+  //-------------------------
+  // GET ALL
+  //-------------------------
   getUsers (request, response, next) {
     User
     .find()
@@ -35,7 +28,9 @@ export default {
   },
 
 
-  // GET a User
+  //-------------------------
+  // GET ONE
+  //-------------------------
   getUser (req, res, next) {
     User
     .findById(req.params.id)
@@ -51,17 +46,17 @@ export default {
     .catch(next)
   },
 
-  // PUT a User
+  //-------------------------
+  // UPDATE
+  //-------------------------
   updateUser (req, res, next) {
     const id = req.params.id
     let body = req.body
     body.edited = Date.now()
 
-    User
-    .findByIdAndUpdate(id, body)
+    User.findByIdAndUpdate(id, body)
     .then(user => {
-      User
-      .findById(id)
+      User.findById(id)
       .then(updatedUser => {
         res.json(updatedUser)
       })
@@ -69,13 +64,14 @@ export default {
     .catch(next)
   },
 
-  // DELETE a User
+  //-------------------------
+  // DELETE
+  //-------------------------
   deleteUser (req, res, next) {
-    User
-    .findByIdAndRemove(req.params.id)
+    User.findByIdAndRemove(req.params.id)
     .then(user => {
-      if(User) {
-        res.json(User)
+      if(user) {
+        res.json(user)
       } else {
         res
         .status(404)

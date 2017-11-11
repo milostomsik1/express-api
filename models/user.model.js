@@ -41,23 +41,47 @@ const UserSchema = new mongoose.Schema(
   }
 )
 
+// bcrypt.genSalt(10).then(salt => {
+//   bcrypt.hash(user.password, salt).then(hash => {
+//     user.created = Date.now()
+//     user.edited = Date.now()
+//     user.password = hash
+//   })
+// }).catch(err => next())
+
+
 // Bcrypt User password
 UserSchema.pre('save', function(next) {
   let user = this;
-  // if(!user.isModified('password')) {
-  //   return next();
-  // }
-  bcrypt.genSalt(10, function(err, salt) {
-    if(err) return next();
-    bcrypt.hash(user.password, salt, ()=>{}, function(err, hashed) {
-      if(err) return next();
-      user.created = Date.now()
-      user.edited = Date.now()
-      user.password = hashed;
+  if(!user.isModified('password')) {
+    return next();
+  }
+  bcrypt.genSalt(10).then(salt => {
+    bcrypt.hash(user.password, salt).then(hash => {
+      user.created = Date.now();
+      user.edited = Date.now();
+      user.password = hash;
       return next();
-    });
-  });
+    })
+  }).catch(err => next());
 });
+// Bcrypt User password
+// UserSchema.pre('save', function(next) {
+//   let user = this;
+//   if(!user.isModified('password')) {
+//     return next();
+//   }
+//   bcrypt.genSalt(10, function(err, salt) {
+//     if(err) return next();
+//     bcrypt.hash(user.password, salt, ()=>{}, function(err, hashed) {
+//       if(err) return next();
+//       user.created = Date.now()
+//       user.edited = Date.now()
+//       user.password = hashed;
+//       return next();
+//     });
+//   });
+// });
 
 // // Schema compare password method
 // UserSchema.methods.comparePasswords = function(guess, password, callback) {
