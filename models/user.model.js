@@ -22,10 +22,9 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      // select: false,
       required: [true, 'Password is required'],
       minlength: [6, 'Minimum password length is 6'],
-      maxlength: [100, 'Maximum password length is 100']
+      maxlength: [50, 'Maximum password length is 50']
     },
     created: {
       type: Date,
@@ -41,7 +40,10 @@ const UserSchema = new mongoose.Schema(
   }
 )
 
-// Encrypt Password on CREATE
+
+//-------------------------
+// ENCRYPT PASS ON CREATE
+//-------------------------
 UserSchema.pre('save', function(next) {
   const USER = this
   bcrypt.genSalt(10).then(salt => {
@@ -52,7 +54,10 @@ UserSchema.pre('save', function(next) {
   }).catch(err => next())
 });
 
-// Encrypt Password on UPDATE
+
+//-------------------------
+// ENCRYPT PASS ON UPDATE
+//-------------------------
 UserSchema.pre('findOneAndUpdate', function(next) {
   this.findOneAndUpdate({},{ edited: Date.now() })
 
@@ -61,34 +66,18 @@ UserSchema.pre('findOneAndUpdate', function(next) {
     const PASSWORD = this._update.password
     const HASHED_PASSWORD = doc[0].password
 
-    if (PASSWORD && NEW_PASSWORD && bcrypt.compareSync(PASSWORD, HASHED_PASSWORD)) {
+    if (PASSWORD && NEW_PASSWORD && PASSWORD !== NEW_PASSWORD  && bcrypt.compareSync(PASSWORD, HASHED_PASSWORD)) {
       bcrypt.genSalt(10).then(salt => {
         bcrypt.hash(NEW_PASSWORD, salt).then(hash => {
           this.findOneAndUpdate({},{ password: hash })
           return next()
         })
-      }).catch(err => next())
+      }).catch(() => next())
     } else {
       delete this._update.password
       return next()
     }
-  }).catch(err => next())
+  }).catch(() => next())
 });
-
-// Schema compare password method
-// UserSchema.methods.comparePasswords = function(guess, password, callback) {
-//   bcrypt.compare(guess, password, function(err, isMatch) {
-//     return callback(err, isMatch);
-//   });
-// }
-
-UserSchema.methods.comparePasswords = function(password, callback) {
-  bcrypt.compare(password, this.password, function(err, isMatch) {
-      if(err) {
-          return callback(err);
-      }
-      callback(null, isMatch);
-  });
-};
 
 export default mongoose.model('User', UserSchema)

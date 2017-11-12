@@ -49,17 +49,14 @@ export default {
   // UPDATE
   //-------------------------
   updateUser (req, res, next) {
-    if (!(req.body.password && req.body.newPassword)) {
-      delete req.body.password
-      delete req.body.newPassword
-    }
-
     User.findByIdAndUpdate(req.params.id, req.body).then(doc => {
       if (!doc) {
         next()
         return
       }
       User.findById(req.params.id).then(updDoc => {
+        updDoc = updDoc.toObject()
+        updDoc.passwordChanged = doc.password !== updDoc.password
         res.status(200).json(updDoc)
       })
     }).catch(next)
