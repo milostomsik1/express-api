@@ -18,11 +18,10 @@ export default {
   //-------------------------
   // GET ALL
   //-------------------------
-  getUsers (request, response, next) {
-    User
-    .find()
-    .then(dbUsers => {
-      response.json(dbUsers)
+  getUsers (req, res, next) {
+    User.find().select('-password')
+    .then(doc => {
+      res.json(doc)
     })
     .catch(next)
   },
@@ -32,15 +31,14 @@ export default {
   // GET ONE
   //-------------------------
   getUser (req, res, next) {
-    User
-    .findById(req.params.id)
+    User.findById(req.params.id).select('-password')
     .then(user => {
       if(user) {
-        res.json(User)
+        res.json(user)
       } else {
         res
         .status(404)
-        .send({error: `User ${req.params.id} doesn't exist.`})
+        .send({errors: `User ${req.params.id} doesn't exist.`})
       }
     })
     .catch(next)
@@ -50,15 +48,13 @@ export default {
   // UPDATE
   //-------------------------
   updateUser (req, res, next) {
-    const id = req.params.id
-    let body = req.body
-    body.edited = Date.now()
+    req.body.edited = Date.now()
 
-    User.findByIdAndUpdate(id, body)
+    User.findByIdAndUpdate(req.params.id)
     .then(user => {
-      User.findById(id)
-      .then(updatedUser => {
-        res.json(updatedUser)
+      User.findById(req.params.id)
+      .then(updatedDoc => {
+        res.status(200).json(updatedDoc)
       })
     })
     .catch(next)
@@ -75,7 +71,7 @@ export default {
       } else {
         res
         .status(404)
-        .send({error: `User ${req.params.id} doesn't exist.`})
+        .send({errors: `User ${req.params.id} doesn't exist.`})
       }
     })
     .catch(next)
