@@ -51,12 +51,16 @@ export default {
     req.body.edited = Date.now()
 
     User.findById(req.params.id).then(doc => {
+      if (!doc) {
+        next()
+        return
+      }
       doc.update(req.body).then(doc => {
         User.findById(req.params.id).select('-password').then(updDoc => {
           res.status(200).json(updDoc)
         })
       })
-    })
+    }).catch(next)
   },
 
   //-------------------------

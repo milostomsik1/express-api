@@ -27,26 +27,26 @@ server.use(bodyParser.json({limit: config.limit}))
 server.use('/api', router)
 
 // 422 middleware
-// server.use(function (err, req, res, next) {
-//   if(err) {
-//     let errors = {};
-//     Object.keys(err.errors).forEach(key => {
-//       errors[key] = (err.errors[key]['message'])
-//     });
-//     res.status(422).json({errors})
-//   }
-// })
+server.use(function (err, req, res, next) {
+  if(err) {
+    let errors = {};
+    Object.keys(err.errors).forEach(key => {
+      errors[key] = (err.errors[key]['message'])
+    });
+    res.status(422).json({errors})
+  }
+})
 
-// // 500 middleware
-// server.use(function (err, req, res, next) {
-//   console.error(err.stack)
-//   res.status(500).json({errors: "Internal server error"})
-// })
+// 500 middleware
+server.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).json({errors: "Internal server error"})
+})
 
-// // 404 middleware
-// server.use(function (req, res, next) {
-//   res.status(404).json({errors: "Endpoint not found"})
-// })
+// 404 middleware
+server.use(function (req, res, next) {
+  res.status(404).json({errors: "Endpoint not found"})
+})
 
 // listen for requests
 server.listen(process.env.port || config.port, () => {
