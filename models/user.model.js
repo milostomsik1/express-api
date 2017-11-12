@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Name is required'],
-      maxlength: [100, 'Minimum name length is 100']
+      maxlength: [100, 'Maximum name length is 100']
     },
     email: {
       type: String,
@@ -44,7 +44,6 @@ const UserSchema = new mongoose.Schema(
 // Encrypt Password on CREATE
 UserSchema.pre('save', function(next) {
   const USER = this
-
   bcrypt.genSalt(10).then(salt => {
     bcrypt.hash(USER.password, salt).then(hash => {
       USER.password = hash
@@ -54,12 +53,14 @@ UserSchema.pre('save', function(next) {
 });
 
 // Encrypt Password on UPDATE
-UserSchema.pre('update', function(next) {
-  const PASSWORD = this._update.$set.password
+UserSchema.pre('findOneAndUpdate', function(next) {
+  const PASSWORD = this._update.password
+  this.findOneAndUpdate({},{ edited: Date.now() })
+
   if (PASSWORD) {
     bcrypt.genSalt(10).then(salt => {
       bcrypt.hash(PASSWORD, salt).then(hash => {
-        this.update({},{ $set: { password: hash } })
+        this.findOneAndUpdate({},{ password: hash })
         return next()
       })
     }).catch(err => next())

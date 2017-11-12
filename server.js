@@ -28,12 +28,14 @@ server.use('/api', router)
 
 // 422 middleware
 server.use(function (err, req, res, next) {
-  if(err) {
-    let errors = {};
+  if(err.errors) {
+    let errors = {}
     Object.keys(err.errors).forEach(key => {
       errors[key] = (err.errors[key]['message'])
     });
     res.status(422).json({errors})
+  } else {
+    next()
   }
 })
 
