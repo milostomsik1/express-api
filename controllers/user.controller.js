@@ -49,26 +49,14 @@ export default {
   //-------------------------
   updateUser (req, res, next) {
     req.body.edited = Date.now()
-    delete req.body.password
 
-    if (req.body.email) {
-      User.findOne({email: req.body.email})
-      .then(doc => {
-        if (doc) {
-          res.status(422).json({errors: {email: "Email already taken"}})
-          return
-        } else {
-          User.findByIdAndUpdate(req.params.id, req.body)
-          .then(user => {
-            User.findById(req.params.id).select('-password')
-            .then(updatedDoc => {
-              res.status(200).json(updatedDoc)
-            })
-          })
-          .catch(next)
-        }
+    User.findById(req.params.id).then(doc => {
+      doc.update(req.body).then(doc => {
+        User.findById(req.params.id).select('-password').then(updDoc => {
+          res.status(200).json(updDoc)
+        })
       })
-    }
+    })
   },
 
   //-------------------------

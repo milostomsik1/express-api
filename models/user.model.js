@@ -43,23 +43,36 @@ const UserSchema = new mongoose.Schema(
 
 // Encrypt Password on CREATE
 UserSchema.pre('save', function(next) {
-  let user = this
-  if(!user.isModified('password')) {
-    return next()
-  }
+  const USER = this
+
   bcrypt.genSalt(10).then(salt => {
-    bcrypt.hash(user.password, salt).then(hash => {
-      user.password = hash
+    bcrypt.hash(USER.password, salt).then(hash => {
+      USER.password = hash
       return next()
     })
   }).catch(err => next())
 });
 
-// // Schema compare password method
-// UserSchema.methods.comparePasswords = function(guess, password, callback) {
-//   bcrypt.compare(guess, password, function(err, isMatch) {
-//     return callback(err, isMatch);
-//   });
-// }
+// Encrypt Password on UPDATE
+UserSchema.pre('update', function(next) {
+  const PASSWORD = this._update.$set.password
+  if (PASSWORD) {
+    bcrypt.genSalt(10).then(salt => {
+      bcrypt.hash(PASSWORD, salt).then(hash => {
+        this.update({},{ $set: { password: hash } })
+        return next()
+      })
+    }).catch(err => next())
+  } else {
+    return next()
+  }
+});
+
+// Schema compare password method
+UserSchema.methods.comparePasswords = function(guess, password, callback) {
+  bcrypt.compare(guess, password, function(err, isMatch) {
+    return callback(err, isMatch);
+  });
+}
 
 export default mongoose.model('User', UserSchema)
