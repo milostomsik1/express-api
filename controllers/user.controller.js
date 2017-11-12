@@ -1,4 +1,5 @@
 import User from '../models/user.model'
+import bcrypt from 'bcryptjs'
 
 export default {
 
@@ -48,6 +49,11 @@ export default {
   // UPDATE
   //-------------------------
   updateUser (req, res, next) {
+    if (!(req.body.password && req.body.newPassword)) {
+      delete req.body.password
+      delete req.body.newPassword
+    }
+
     User.findByIdAndUpdate(req.params.id, req.body).then(doc => {
       if (!doc) {
         next()

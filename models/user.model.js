@@ -54,26 +54,41 @@ UserSchema.pre('save', function(next) {
 
 // Encrypt Password on UPDATE
 UserSchema.pre('findOneAndUpdate', function(next) {
-  const PASSWORD = this._update.password
   this.findOneAndUpdate({},{ edited: Date.now() })
 
-  if (PASSWORD) {
-    bcrypt.genSalt(10).then(salt => {
-      bcrypt.hash(PASSWORD, salt).then(hash => {
-        this.findOneAndUpdate({},{ password: hash })
-        return next()
-      })
-    }).catch(err => next())
-  } else {
-    return next()
-  }
+  this.find({}).then(doc => {
+    const NEW_PASSWORD = this._update.newPassword
+    const PASSWORD = this._update.password
+    const HASHED_PASSWORD = doc[0].password
+
+    if (PASSWORD && NEW_PASSWORD && bcrypt.compareSync(PASSWORD, HASHED_PASSWORD)) {
+      bcrypt.genSalt(10).then(salt => {
+        bcrypt.hash(NEW_PASSWORD, salt).then(hash => {
+          this.findOneAndUpdate({},{ password: hash })
+          return next()
+        })
+      }).catch(err => next())
+    } else {
+      delete this._update.password
+      return next()
+    }
+  }).catch(err => next())
 });
 
 // Schema compare password method
-UserSchema.methods.comparePasswords = function(guess, password, callback) {
-  bcrypt.compare(guess, password, function(err, isMatch) {
-    return callback(err, isMatch);
+// UserSchema.methods.comparePasswords = function(guess, password, callback) {
+//   bcrypt.compare(guess, password, function(err, isMatch) {
+//     return callback(err, isMatch);
+//   });
+// }
+
+UserSchema.methods.comparePasswords = function(password, callback) {
+  bcrypt.compare(password, this.password, function(err, isMatch) {
+      if(err) {
+          return callback(err);
+      }
+      callback(null, isMatch);
   });
-}
+};
 
 export default mongoose.model('User', UserSchema)
