@@ -19,12 +19,9 @@ export default {
   //-------------------------
   // GET ALL
   //-------------------------
-  getUsers (req, res, next) {
-    User.find().select('-password')
-    .then(doc => {
-      res.json(doc)
-    })
-    .catch(next)
+  async getUsers (req, res, next) {
+    const doc = await User.find().select('-password')
+    res.status(200).json(doc)
   },
 
 
@@ -35,7 +32,7 @@ export default {
     User.findById(req.params.id).select('-password')
     .then(user => {
       if(user) {
-        res.json(user)
+        res.status(200).json(user)
       } else {
         res
         .status(404)
@@ -57,6 +54,7 @@ export default {
       User.findById(req.params.id).then(updDoc => {
         updDoc = updDoc.toObject()
         updDoc.passwordChanged = doc.password !== updDoc.password
+        delete updDoc.password
         res.status(200).json(updDoc)
       })
     }).catch(next)
