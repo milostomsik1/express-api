@@ -6,75 +6,89 @@ export default {
   //-------------------------
   // POST
   //-------------------------
-  createUser (req, res, next) {
-    User.create(req.body)
-    .then(doc => {
+  async createUser (req, res, next) {
+    try {
+      let doc = await User.create(req.body)
       doc = doc.toObject()
       delete doc.password
       res.status(201).json(doc)
-    })
-    .catch(next)
+    }
+    catch (err) {
+      next(err)
+    }
   },
+
 
   //-------------------------
   // GET ALL
   //-------------------------
   async getUsers (req, res, next) {
-    const doc = await User.find().select('-password')
-    res.status(200).json(doc)
+    try {
+      const doc = await User.find().select('-password')
+      res.status(200).json(doc)
+    }
+    catch (err) {
+      next(err)
+    }
   },
 
 
   //-------------------------
   // GET ONE
   //-------------------------
-  getUser (req, res, next) {
-    User.findById(req.params.id).select('-password')
-    .then(user => {
-      if(user) {
-        res.status(200).json(user)
+  async getUser (req, res, next) {
+    try {
+      const doc = await User.findById(req.params.id).select('-password')
+      if(doc) {
+        res.status(200).json(doc)
       } else {
-        res
-        .status(404)
-        .send({errors: `User ${req.params.id} doesn't exist.`})
+        res.status(404).send({errors: `User ${req.params.id} doesn't exist.`})
       }
-    })
-    .catch(next)
+    }
+    catch (err) {
+      next(err)
+    }
   },
 
   //-------------------------
   // UPDATE
   //-------------------------
-  updateUser (req, res, next) {
-    User.findByIdAndUpdate(req.params.id, req.body).then(doc => {
+  async updateUser (req, res, next) {
+    try {
+      let doc = await User.findByIdAndUpdate(req.params.id, req.body)
       if (!doc) {
         next()
         return
       }
-      User.findById(req.params.id).then(updDoc => {
-        updDoc = updDoc.toObject()
-        updDoc.passwordChanged = doc.password !== updDoc.password
-        delete updDoc.password
-        res.status(200).json(updDoc)
-      })
-    }).catch(next)
+      let updDoc = await User.findById(req.params.id)
+      updDoc = updDoc.toObject()
+      updDoc.passwordChanged = doc.password !== updDoc.password
+      delete updDoc.password
+      res.status(200).json(updDoc)
+    }
+    catch (err) {
+      next(err)
+    }
   },
 
   //-------------------------
   // DELETE
   //-------------------------
-  deleteUser (req, res, next) {
-    User.findByIdAndRemove(req.params.id)
-    .then(user => {
-      if(user) {
-        res.json(user)
+  async deleteUser (req, res, next) {
+    try {
+      const doc = await User.findByIdAndRemove(req.params.id)
+      if(doc) {
+        res.json({message: `Deleted user  ${req.params.id} from DB`})
       } else {
         res
         .status(404)
-        .send({errors: `User ${req.params.id} doesn't exist.`})
+        .send({errors: `User ${req.params.id} doesn't exist in DB`})
       }
-    })
-    .catch(next)
+    }
+    catch (err) {
+      console.log(err)
+      next(err)
+    }
   }
 
 }
