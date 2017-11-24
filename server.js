@@ -4,7 +4,7 @@ import compression from 'compression'
 import mongoose from 'mongoose'
 import config from './config/db'
 import bodyParser from 'body-parser'
-import router from './routes/index.routes'
+import routes from './routes/index.routes'
 
 // setup express server
 const server = express()
@@ -24,7 +24,7 @@ server.use(compression())
 server.use(bodyParser.json({limit: config.limit}))
 
 // attach routes
-server.use('/api', router)
+server.use('/api', routes)
 
 // 422 middleware
 server.use(function (err, req, res, next) {

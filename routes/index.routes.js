@@ -2,11 +2,12 @@ import express from 'express'
 import posts from './post.routes'
 import users from './user.routes'
 import auth from './auth.routes'
+const route = express()
 
-const router = express()
 
-router.use('/posts', posts)
-router.use('/users', users)
-router.use('/', auth)
+route.use('/posts', posts)
+route.use('/users', users)
+route.use('/', auth)
 
-export default router
+
+export default route

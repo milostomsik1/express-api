@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 
 export default {
 
-  // POST a post
+  // -- LOGIN
   login (req, res, next) {
     const USER = {
       email: 'test@test.com',
@@ -11,7 +11,7 @@ export default {
     }
 
     const TOKEN = jwt.sign(USER,process.env.SECRET_KEY, {expiresIn: 1440});
-
     res.json(TOKEN);
   }
+
 }
