@@ -47,7 +47,8 @@ export default {
   // -- DELETE
   async delete (req, res, next) {
     const DOC = await Post.findByIdAndRemove(req.params.id).catch(next)
-    DOC && res.status(200).json(post)
+    DOC && res.status(200).json({message: [`Deleted post with id ${req.params.id}`]})
+    !DOC && next()
   }
 
 }
