@@ -16,6 +16,7 @@ export default {
 
     const DOC = await Post.create(req.body).catch(next)
     DOC && res.status(201).json(DOC)
+    !DOC && next()
   },
 
   // -- GET ALL
@@ -25,12 +26,14 @@ export default {
 
     const DOC = await Post.find(query).populate('author', 'name').catch(next)
     DOC && res.status(200).json(DOC)
+    !DOC && next()
   },
 
   // -- GET ONE
   async getOne (req, res, next) {
     const DOC = await Post.findById(req.params.id).catch(next)
     DOC && res.status(200).json(DOC)
+    !DOC && next()
   },
 
   // -- UPDATE
@@ -42,6 +45,7 @@ export default {
       const UPDATED_DOC = await Post.findById(req.params.id).catch(next)
       UPDATED_DOC && res.status(200).json(UPDATED_DOC)
     }
+    !DOC && next()
   },
 
   // -- DELETE
